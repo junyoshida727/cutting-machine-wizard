@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>切断機 電気工事仕様ウィザード｜日特機械工業</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+:root { --bg:#f5f4f0; --surface:#fff; --border:#d8d5cc; --accent:#1a1a2e; --accent2:#c0392b; --text:#1c1c1c; --muted:#777; --done:#2ecc71; --r:2px; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+header{background:var(--accent);color:#fff;padding:18px 40px;display:flex;align-items:center;gap:20px;border-bottom:3px solid var(--accent2);}
+.logo{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;letter-spacing:3px;}
+.hdiv{width:1px;height:28px;background:rgba(255,255,255,.25);}
+.htitle .m{font-size:15px;font-weight:500;letter-spacing:1px;}
+.htitle .s{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;margin-top:2px;font-family:'DM Mono',monospace;}
+.pw{background:var(--accent);padding:0 40px 20px;}
+.sr{display:flex;align-items:center;max-width:860px;}
+.si{display:flex;align-items:center;gap:6px;flex:1;position:relative;}
+.si:not(:last-child)::after{content:'';position:absolute;left:26px;top:13px;width:calc(100% - 26px);height:1px;background:rgba(255,255,255,.2);transition:background .3s;}
+.si.done::after{background:var(--done);}
+.sn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.5);font-size:11px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.si.done .sn{background:var(--done);border-color:var(--done);color:#fff;}
+.si.active .sn{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.sl{font-size:9px;color:rgba(255,255,255,.35);white-space:nowrap;display:none;}
+.si.active .sl{color:rgba(255,255,255,.8);display:block;}
+.si.done .sl{color:rgba(255,255,255,.45);display:block;}
+main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:700px;box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden;}
+.alert{background:#fff8f7;border:1px solid #f5c6c2;padding:12px 16px;font-size:12px;color:#8b2020;margin:16px 36px 0;border-radius:var(--r);display:none;}
+.alert.show{display:block;}
+.ch{padding:28px 36px 20px;border-bottom:1px solid var(--border);background:#faf9f7;}
+.ch .tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ch h2{font-size:20px;font-weight:500;}
+.ch p{font-size:13px;color:var(--muted);margin-top:4px;}
+.cb{padding:32px 36px;}
+.f{margin-bottom:24px;}
+.f label{display:block;font-size:12px;font-weight:500;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.f label .req{color:var(--accent2);margin-left:4px;}
+.f input[type=text],.f select,.f textarea{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:'Noto Sans JP',sans-serif;font-size:14px;color:var(--text);background:#fff;transition:border-color .2s;appearance:none;}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--accent);}
+.sw{position:relative;}
+.sw::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);font-size:12px;}
+.rg{display:flex;gap:8px;flex-wrap:wrap;}
+.rb{position:relative;flex:1;min-width:90px;}
+.rb input{position:absolute;opacity:0;width:0;height:0;}
+.rb label{display:flex;align-items:center;justify-content:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--text);text-align:center;transition:all .15s;background:#fff;line-height:1.4;}
+.rb input:checked+label{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500;}
+.cond{background:#f8f7f4;border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:var(--r);padding:20px 20px 4px;margin-top:16px;display:none;}
+.cond.show{display:block;}
+.cond .cl{font-size:11px;color:var(--accent2);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:14px;}
+.fv{padding:11px 14px;border:1px solid var(--border);border-radius:var(--r);background:#f8f7f4;font-size:14px;color:var(--muted);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.div{border:none;border-top:1px dashed var(--border);margin:8px 0 24px;}
+.cf{padding:20px 36px;border-top:1px solid var(--border);background:#faf9f7;display:flex;justify-content:space-between;align-items:center;}
+.btn{padding:11px 28px;border-radius:var(--r);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;}
+.bg{background:transparent;border-color:var(--border);color:var(--muted);}
+.bg:hover{border-color:var(--muted);color:var(--text);}
+.bp{background:var(--accent);color:#fff;}
+.bp:hover{background:#2c2c4e;}
+.bd{background:var(--accent2);color:#fff;}
+.bd:hover{background:#a93226;}
+.rs{margin-bottom:24px;}
+.rs h3{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.rr{display:flex;gap:16px;padding:9px 0;border-bottom:1px solid #f0ede8;font-size:13px;}
+.rr:last-child{border-bottom:none;}
+.rk{color:var(--muted);width:200px;flex-shrink:0;}
+.rv{font-weight:500;}
+.sp{display:none;}
+.sp.active{display:block;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">NITTOKU</div>
+  <div class="hdiv"></div>
+  <div class="htitle">
+    <div class="m">切断機 電気工事仕様書ウィザード</div>
+    <div class="s">ELECTRICAL SPEC GENERATOR</div>
+  </div>
+</header>
+<div class="pw"><div class="sr" id="sr"></div></div>
+<main><div class="card">
+<div id="alert" class="alert"></div>
+
+<!-- STEP 1 共通 -->
+<div class="sp active" id="p0">
+  <div class="ch"><div class="tag">Step 1</div><h2>基本情報</h2><p>機種シリーズ・型番・顧客情報を入力してください</p></div>
+  <div class="cb">
+    <div class="g2">
+      <div class="f">
+        <label>機種シリーズ<span class="req">*</span></label>
+        <div class="sw"><select id="fs" onchange="onSeries()">
+          <option value="">選択してください</option>
+          <optgroup label="NCシリーズ">
+            <option value="NCO">NCO（耐火煉瓦カッター）</option>
+            <option value="NCR">NCR（試験室用切断機）</option>
+            <option value="NCA">NCA</option>
+            <option value="NCB">NCB</option>
+          </optgroup>
+          <optgroup label="INMシリーズ">
+            <option value="INM">INM（煉瓦切断機）</option>
+          </optgroup>
+        </select></div>
+      </div>
+      <div class="f">
+        <label>型番（末尾・仕様番号）<span class="req">*</span></label>
+        <input type="text" id="fmn" placeholder="例：-20DWB-600-T">
+      </div>
+    </div>
+    <hr class="div">
+    <div class="g2">
+      <div class="f"><label>顧客名<span class="req">*</span></label><input type="text" id="fcu" placeholder="例：品川ファーネス株式会社"></div>
+      <div class="f"><label>現場名・設置場所</label><input type="text" id="fsi" placeholder="例：京浜事業所"></div>
+    </div>
+    <div class="g2">
+      <div class="f"><label>出荷予定日</label><input type="text" id="fsh" placeholder="例：2026年5月末"></div>
+      <div class="f"><label>担当者名</label><input type="text" id="fst" placeholder="例：吉田"></div>
+    </div>
+  </div>
+  <div class="cf"><span></span><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- NC: Step2 カバー -->
+<div class="sp" id="pnc2">
+  <div class="ch"><div class="tag">Step 2</div><h2>カバー・安全装置</h2><p>機種に応じたカバー仕様と安全センサーを選択してください</p></div>
+  <div class="cb">
+    <div id="c_nco" style="display:none">
+      <div class="f"><label>アクリルカバー<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncc" id="ncc_y1" value="あり" onchange="onNCCov()"><label for="ncc_y1">あり</label></div>
+          <div class="rb"><input type="radio" name="ncc" id="ncc_n1" value="なし" onchange="onNCCov()"><label for="ncc_n1">なし</label></div>
+        </div>
+      </div>
+    </div>
+    <div id="c_ncrb" style="display:none">
+      <div class="f"><label>全カバー<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncc" id="ncc_y2" value="あり" onchange="onNCCov()"><label for="ncc_y2">あり</label></div>
+          <div class="rb"><input type="radio" name="ncc" id="ncc_n2" value="なし" onchange="onNCCov()"><label for="ncc_n2">なし</label></div>
+        </div>
+      </div>
+    </div>
+    <div id="c_nca" style="display:none">
+      <p style="color:var(--muted);font-size:13px;padding:8px 0 20px">NCA にはカバーオプションはありません。次へ進んでください。</p>
+    </div>
+    <div class="cond" id="nc_cs">
+      <div class="cl">▸ カバーあり — 安全装置</div>
+      <div class="f"><label>安全センサー</label><div class="fv">あり（固定）</div></div>
+      <div class="f"><label>センサー種別<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncst" id="ncst_nc" value="非接触型（キーエンス照光型）"><label for="ncst_nc">非接触型</label></div>
+          <div class="rb"><input type="radio" name="ncst" id="ncst_lk" value="ロック式（キーエンスGSシリーズ）"><label for="ncst_lk">ロック式</label></div>
+        </div>
+      </div>
+      <div class="f"><label>センサー設置箇所数<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncsc" id="ncsc1" value="1か所"><label for="ncsc1">1か所</label></div>
+          <div class="rb"><input type="radio" name="ncsc" id="ncsc2" value="2か所"><label for="ncsc2">2か所</label></div>
+          <div class="rb"><input type="radio" name="ncsc" id="ncsc3" value="3か所"><label for="ncsc3">3か所</label></div>
+          <div class="rb"><input type="radio" name="ncsc" id="ncsc4" value="4か所以上"><label for="ncsc4">4か所以上</label></div>
+        </div>
+      </div>
+      <div id="nc_proj" style="display:none">
+        <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（NCR + カバーあり 固定）</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- NC: Step3 モーター -->
+<div class="sp" id="pnc3">
+  <div class="ch"><div class="tag">Step 3</div><h2>モーター仕様</h2><p>駆動方式とモーター構成を選択してください</p></div>
+  <div class="cb">
+    <div class="f"><label>駆動方式<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncd" id="ncd_m" value="手動"><label for="ncd_m">手動</label></div>
+        <div class="rb"><input type="radio" name="ncd" id="ncd_a" value="自動"><label for="ncd_a">自動</label></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>メインモーター容量<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk04" value="0.4 kW"><label for="ncmk04">0.4 kW</label></div>
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk07" value="0.75 kW"><label for="ncmk07">0.75 kW</label></div>
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk15" value="1.5 kW"><label for="ncmk15">1.5 kW</label></div>
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk22" value="2.2 kW"><label for="ncmk22">2.2 kW</label></div>
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk37" value="3.7 kW"><label for="ncmk37">3.7 kW</label></div>
+        <div class="rb"><input type="radio" name="ncmk" id="ncmk55" value="5.5 kW"><label for="ncmk55">5.5 kW</label></div>
+      </div>
+    </div>
+    <div class="f"><label>モーター形式</label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncmt" id="ncmt_b" value="HBAブレーキモーター"><label for="ncmt_b">HBAブレーキ</label></div>
+        <div class="rb"><input type="radio" name="ncmt" id="ncmt_s" value="標準モーター"><label for="ncmt_s">標準</label></div>
+        <div class="rb"><input type="radio" name="ncmt" id="ncmt_i" value="インバーター制御"><label for="ncmt_i">インバーター</label></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>走行モーター<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="nct" id="nct_y" value="あり"><label for="nct_y">あり</label></div>
+        <div class="rb"><input type="radio" name="nct" id="nct_n" value="なし"><label for="nct_n">なし</label></div>
+      </div>
+    </div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- NC: Step4 制御盤 -->
+<div class="sp" id="pnc4">
+  <div class="ch"><div class="tag">Step 4</div><h2>制御盤</h2><p>制御盤の種別・寸法・設置位置を選択してください</p></div>
+  <div class="cb">
+    <div class="f"><label>盤種別<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncpt" id="ncpt_b" value="ボックス盤"><label for="ncpt_b">ボックス盤</label></div>
+        <div class="rb"><input type="radio" name="ncpt" id="ncpt_f" value="自立盤"><label for="ncpt_f">自立盤</label></div>
+        <div class="rb"><input type="radio" name="ncpt" id="ncpt_o" value="操作盤（小型）"><label for="ncpt_o">操作盤（小型）</label></div>
+      </div>
+    </div>
+    <div class="f"><label>盤寸法（W × H × D mm）</label><input type="text" id="fncps" placeholder="例：W500×H400×D200"></div>
+    <div class="f"><label>設置位置<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncpp" id="ncpp_l" value="左側面部"><label for="ncpp_l">左側面部</label></div>
+        <div class="rb"><input type="radio" name="ncpp" id="ncpp_r" value="右側面部"><label for="ncpp_r">右側面部</label></div>
+        <div class="rb"><input type="radio" name="ncpp" id="ncpp_f" value="正面"><label for="ncpp_f">正面</label></div>
+        <div class="rb"><input type="radio" name="ncpp" id="ncpp_o" value="その他"><label for="ncpp_o">その他</label></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>電源仕様</label><div class="fv">3相 200V / 50Hz・60Hz（固定）</div></div>
+    <div class="f"><label>プラグ形状<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncpl" id="ncpl_h" value="ひっかけプラグ"><label for="ncpl_h">ひっかけ</label></div>
+        <div class="rb"><input type="radio" name="ncpl" id="ncpl_s" value="ストレートプラグ"><label for="ncpl_s">ストレート</label></div>
+      </div>
+    </div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- NC: Step5 給水・付帯 -->
+<div class="sp" id="pnc5">
+  <div class="ch"><div class="tag">Step 5</div><h2>給水・付帯設備</h2><p>給水方式・キャプタイヤコードを選択してください</p></div>
+  <div class="cb">
+    <div class="f"><label>給水方式<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="ncw" id="ncw_p" value="水中ポンプ循環式"><label for="ncw_p">水中ポンプ<br>循環式</label></div>
+        <div class="rb"><input type="radio" name="ncw" id="ncw_s" value="電磁弁（ブレード連動）"><label for="ncw_s">電磁弁<br>ブレード連動</label></div>
+        <div class="rb"><input type="radio" name="ncw" id="ncw_n" value="なし"><label for="ncw_n">なし</label></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>キャプタイヤコード<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="nccb" id="nccb_y" value="あり" onchange="onNCCab()"><label for="nccb_y">あり</label></div>
+        <div class="rb"><input type="radio" name="nccb" id="nccb_n" value="なし" onchange="onNCCab()"><label for="nccb_n">なし</label></div>
+      </div>
+    </div>
+    <div class="cond" id="nc_cb">
+      <div class="cl">▸ キャプタイヤコード — 長さ</div>
+      <div class="f"><label>長さ</label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="nccbl" id="nccbl5" value="5m"><label for="nccbl5">5m</label></div>
+          <div class="rb"><input type="radio" name="nccbl" id="nccbl10" value="10m"><label for="nccbl10">10m</label></div>
+          <div class="rb"><input type="radio" name="nccbl" id="nccbl15" value="15m"><label for="nccbl15">15m</label></div>
+          <div class="rb"><input type="radio" name="nccbl" id="nccblo" value="その他"><label for="nccblo">その他</label></div>
+        </div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="fncrm" rows="3" placeholder="電気工事業者への補足事項があれば記載してください"></textarea></div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">確認画面へ →</button></div>
+</div>
+
+<!-- INM: Step2 サイズ・カバー -->
+<div class="sp" id="pinm2">
+  <div class="ch"><div class="tag">Step 2</div><h2>サイズ・カバー</h2><p>機種サイズとカバー仕様を選択してください</p></div>
+  <div class="cb">
+    <div class="f"><label>機種サイズ<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="inmsz" id="inmsz20" value="20インチ（コンパクト）" onchange="onINMSz()"><label for="inmsz20">20インチ<br>コンパクト</label></div>
+        <div class="rb"><input type="radio" name="inmsz" id="inmsz26" value="26インチ以上（通常）" onchange="onINMSz()"><label for="inmsz26">26インチ以上<br>通常モデル</label></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>全カバー<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="inmc" id="inmc_y" value="あり" onchange="onINMCov()"><label for="inmc_y">あり</label></div>
+        <div class="rb"><input type="radio" name="inmc" id="inmc_n" value="なし" onchange="onINMCov()"><label for="inmc_n">なし</label></div>
+      </div>
+    </div>
+    <div class="cond" id="inm_cs">
+      <div class="cl">▸ カバーあり — 安全装置</div>
+      <div class="f"><label>安全センサー</label><div class="fv">あり（固定）</div></div>
+      <div class="f"><label>センサー種別<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="inmst" id="inmst_nc" value="非接触型（キーエンス照光型）"><label for="inmst_nc">非接触型</label></div>
+          <div class="rb"><input type="radio" name="inmst" id="inmst_lk" value="ロック式（キーエンスGSシリーズ）"><label for="inmst_lk">ロック式</label></div>
+        </div>
+      </div>
+      <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（カバーあり 固定）</div></div>
+    </div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- INM: Step3 モーター -->
+<div class="sp" id="pinm3">
+  <div class="ch"><div class="tag">Step 3</div><h2>モーター仕様</h2><p>各モーターの容量・型番を入力してください</p></div>
+  <div class="cb">
+    <div class="f"><label>ブレードモーター<span class="req">*</span></label>
+      <div id="inmbk20" style="display:none"><div class="fv">3.7 kW（20インチ固定）</div></div>
+      <div id="inmbk26" style="display:none">
+        <div class="rg">
+          <div class="rb"><input type="radio" name="inmbk" id="inmbk11" value="11 kW"><label for="inmbk11">11 kW</label></div>
+          <div class="rb"><input type="radio" name="inmbk" id="inmbk15" value="15 kW"><label for="inmbk15">15 kW</label></div>
+        </div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>水平走行モーター<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="inmtr" id="inmtr_y" value="あり" onchange="onINMTr()"><label for="inmtr_y">あり</label></div>
+        <div class="rb"><input type="radio" name="inmtr" id="inmtr_n" value="なし" onchange="onINMTr()"><label for="inmtr_n">なし</label></div>
+      </div>
+    </div>
+    <div class="cond" id="inm_tr">
+      <div class="cl">▸ 走行モーター — 仕様</div>
+      <div class="g2">
+        <div class="f"><label>容量</label><input type="text" id="finmtk" placeholder="例：0.2 kW"></div>
+        <div class="f"><label>型番</label><input type="text" id="finmtm" placeholder="例：ニッセイ G3F40N900-MM02TNNNB2"></div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>上下昇降モーター<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="inmlf" id="inmlf_y" value="あり" onchange="onINMLf()"><label for="inmlf_y">あり</label></div>
+        <div class="rb"><input type="radio" name="inmlf" id="inmlf_n" value="なし" onchange="onINMLf()"><label for="inmlf_n">なし</label></div>
+      </div>
+    </div>
+    <div class="cond" id="inm_lf">
+      <div class="cl">▸ 昇降モーター — 仕様</div>
+      <div class="g2">
+        <div class="f"><label>容量</label><input type="text" id="finmlk" placeholder="例：0.75 kW"></div>
+        <div class="f"><label>型番</label><input type="text" id="finmlm" placeholder="例：ニッセイ F3S35N15-MR08TNNTB2XT3"></div>
+      </div>
+    </div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
+</div>
+
+<!-- INM: Step4 制御盤 -->
+<div class="sp" id="pinm4">
+  <div class="ch"><div class="tag">Step 4</div><h2>制御盤・付帯設備</h2><p>INMは自立盤が基本です</p></div>
+  <div class="cb">
+    <div class="f"><label>盤種別</label><div class="fv">自立盤（固定）</div></div>
+    <div class="f"><label>盤寸法（W × H × D mm）</label><input type="text" id="finmps" placeholder="例：容量に応じて選定"></div>
+    <hr class="div">
+    <div class="f"><label>キャプタイヤコード（一次側）<span class="req">*</span></label>
+      <div class="rg">
+        <div class="rb"><input type="radio" name="inmcb" id="inmcb_y" value="あり" onchange="onINMCab()"><label for="inmcb_y">あり</label></div>
+        <div class="rb"><input type="radio" name="inmcb" id="inmcb_n" value="なし" onchange="onINMCab()"><label for="inmcb_n">なし</label></div>
+      </div>
+    </div>
+    <div class="cond" id="inm_cb">
+      <div class="cl">▸ キャプタイヤコード — 長さ</div>
+      <div class="f"><label>長さ</label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="inmcbl" id="inmcbl5" value="5m"><label for="inmcbl5">5m</label></div>
+          <div class="rb"><input type="radio" name="inmcbl" id="inmcbl10" value="10m"><label for="inmcbl10">10m</label></div>
+          <div class="rb"><input type="radio" name="inmcbl" id="inmcbl15" value="15m"><label for="inmcbl15">15m</label></div>
+          <div class="rb"><input type="radio" name="inmcbl" id="inmcblo" value="その他"><label for="inmcblo">その他</label></div>
+        </div>
+      </div>
+    </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="finmrm" rows="3" placeholder="電気工事業者への補足事項があれば記載してください"></textarea></div>
+  </div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">確認画面へ →</button></div>
+</div>
+
+<!-- 確認・PDF -->
+<div class="sp" id="prev_">
+  <div class="ch"><div class="tag" id="rtag">Step 6</div><h2>確認・PDF出力</h2><p>内容を確認して電気工事仕様書を出力してください</p></div>
+  <div class="cb" id="rb"></div>
+  <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bd" onclick="genPDF()">📄 PDF 出力</button></div>
+</div>
+
+</div></main>
+<script>
+const NC_R  = ['p0','pnc2','pnc3','pnc4','pnc5','prev_'];
+const INM_R = ['p0','pinm2','pinm3','pinm4','prev_'];
+const NC_L  = ['基本情報','カバー・安全','モーター','制御盤','給水・付帯','確認・出力'];
+const INM_L = ['基本情報','サイズ・カバー','モーター','制御盤','確認・出力'];
+let ci = 0;
+
+function ser(){ return document.getElementById('fs').value; }
+function route(){ return ser()==='INM'?INM_R:NC_R; }
+function labels(){ return ser()==='INM'?INM_L:NC_L; }
+function radio(n){ const e=document.querySelector(`input[name="${n}"]:checked`); return e?e.value:''; }
+function val(id){ return document.getElementById(id).value.trim(); }
+
+function renderSR(){
+  const L=labels();
+  document.getElementById('sr').innerHTML=L.map((l,i)=>{
+    const c=i<ci?'done':i===ci?'active':'';
+    return`<div class="si ${c}"><div class="sn">${i<ci?'✓':i+1}</div><div class="sl">${l}</div></div>`;
+  }).join('');
+}
+function showP(id){
+  document.querySelectorAll('.sp').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='prev_') document.getElementById('rtag').textContent='Step '+labels().length;
+}
+
+function next(){
+  const r=route();
+  if(!validate(r[ci])) return;
+  if(ci===r.length-2) buildReview();
+  ci++;renderSR();showP(r[ci]);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function prev(){
+  ci--;renderSR();showP(route()[ci]);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function alert_(m){
+  const a=document.getElementById('alert');
+  a.textContent=m;a.classList.add('show');
+  setTimeout(()=>a.classList.remove('show'),3500);
+}
+
+function validate(pid){
+  const s=ser();
+  if(pid==='p0'){
+    if(!s){alert_('機種シリーズを選択してください。');return false;}
+    if(!val('fmn')){alert_('型番を入力してください。');return false;}
+    if(!val('fcu')){alert_('顧客名を入力してください。');return false;}
+  }
+  if(pid==='pnc2'){
+    if(s!=='NCA'){
+      if(!radio('ncc')){alert_('カバー有無を選択してください。');return false;}
+      if(radio('ncc')==='あり'&&!radio('ncst')){alert_('センサー種別を選択してください。');return false;}
+      if(radio('ncc')==='あり'&&!radio('ncsc')){alert_('センサー箇所数を選択してください。');return false;}
+    }
+  }
+  if(pid==='pnc3'){
+    if(!radio('ncd')){alert_('駆動方式を選択してください。');return false;}
+    if(!radio('ncmk')){alert_('メインモーター容量を選択してください。');return false;}
+    if(!radio('nct')){alert_('走行モーターを選択してください。');return false;}
+  }
+  if(pid==='pnc4'){
+    if(!radio('ncpt')){alert_('盤種別を選択してください。');return false;}
+    if(!radio('ncpp')){alert_('設置位置を選択してください。');return false;}
+    if(!radio('ncpl')){alert_('プラグ形状を選択してください。');return false;}
+  }
+  if(pid==='pnc5'){
+    if(!radio('ncw')){alert_('給水方式を選択してください。');return false;}
+    if(!radio('nccb')){alert_('キャプタイヤコードを選択してください。');return false;}
+  }
+  if(pid==='pinm2'){
+    if(!radio('inmsz')){alert_('機種サイズを選択してください。');return false;}
+    if(!radio('inmc')){alert_('カバー有無を選択してください。');return false;}
+    if(radio('inmc')==='あり'&&!radio('inmst')){alert_('センサー種別を選択してください。');return false;}
+  }
+  if(pid==='pinm3'){
+    const sz=radio('inmsz');
+    if(sz==='26インチ以上（通常）'&&!radio('inmbk')){alert_('ブレードモーター容量を選択してください。');return false;}
+    if(!radio('inmtr')){alert_('走行モーターを選択してください。');return false;}
+    if(!radio('inmlf')){alert_('昇降モーターを選択してください。');return false;}
+  }
+  if(pid==='pinm4'){
+    if(!radio('inmcb')){alert_('キャプタイヤコードを選択してください。');return false;}
+  }
+  return true;
+}
+
+function onSeries(){
+  ci=0;renderSR();
+  const s=ser();
+  document.getElementById('c_nco').style.display=s==='NCO'?'block':'none';
+  document.getElementById('c_ncrb').style.display=(s==='NCR'||s==='NCB')?'block':'none';
+  document.getElementById('c_nca').style.display=s==='NCA'?'block':'none';
+  document.querySelectorAll('input[name="ncc"]').forEach(r=>r.checked=false);
+  document.getElementById('nc_cs').classList.remove('show');
+}
+function onNCCov(){
+  const v=radio('ncc'),s=ser();
+  document.getElementById('nc_cs').classList.toggle('show',v==='あり');
+  if(v!=='あり'){document.querySelectorAll('input[name="ncst"],input[name="ncsc"]').forEach(r=>r.checked=false);}
+  document.getElementById('nc_proj').style.display=(v==='あり'&&s==='NCR')?'block':'none';
+}
+function onINMSz(){
+  const v=radio('inmsz');
+  document.getElementById('inmbk20').style.display=v==='20インチ（コンパクト）'?'block':'none';
+  document.getElementById('inmbk26').style.display=v==='26インチ以上（通常）'?'block':'none';
+}
+function onINMCov(){
+  const v=radio('inmc');
+  document.getElementById('inm_cs').classList.toggle('show',v==='あり');
+  if(v!=='あり') document.querySelectorAll('input[name="inmst"]').forEach(r=>r.checked=false);
+}
+function onINMTr(){ document.getElementById('inm_tr').classList.toggle('show',radio('inmtr')==='あり'); }
+function onINMLf(){ document.getElementById('inm_lf').classList.toggle('show',radio('inmlf')==='あり'); }
+function onNCCab(){ document.getElementById('nc_cb').classList.toggle('show',radio('nccb')==='あり'); }
+function onINMCab(){ document.getElementById('inm_cb').classList.toggle('show',radio('inmcb')==='あり'); }
+
+function getData(){
+  const s=ser(),mn=val('fmn'),isINM=s==='INM';
+  const base={
+    series:s,modelnum:mn,fullModel:s+mn,
+    customer:val('fcu'),site:val('fsi')||'—',
+    shipdate:val('fsh')||'—',staff:val('fst')||'—',
+    date:new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'}),
+    isINM
+  };
+  if(!isINM){
+    const cov=s==='NCA'?'なし':radio('ncc')||'—';
+    const ct=s==='NCO'?'アクリルカバー':(s==='NCR'||s==='NCB')?'全カバー':'—';
+    const hasC=s!=='NCA'&&cov==='あり';
+    return{...base,
+      coverType:ct,cover:cov,
+      sensor:hasC?'あり（固定）':'なし',
+      sensorType:hasC?radio('ncst')||'—':'—',
+      sensorCount:hasC?radio('ncsc')||'—':'—',
+      projector:(s==='NCR'&&hasC)?'LED投光器 40W':'—',
+      drive:radio('ncd')||'—',mainMotor:radio('ncmk')||'—',motorType:radio('ncmt')||'—',
+      travel:radio('nct')||'—',
+      panelType:radio('ncpt')||'—',panelSize:val('fncps')||'—',panelPos:radio('ncpp')||'—',
+      power:'3相 200V / 50Hz・60Hz',plug:radio('ncpl')||'—',
+      water:radio('ncw')||'—',
+      cabtyre:radio('nccb')||'—',cabLen:radio('nccb')==='あり'?(radio('nccbl')||'—'):'—',
+      remarks:val('fncrm')||'—'
+    };
+  } else {
+    const sz=radio('inmsz')||'—';
+    const bk=sz==='20インチ（コンパクト）'?'3.7 kW（固定）':(radio('inmbk')||'—');
+    const cov=radio('inmc')||'—';
+    const hasC=cov==='あり';
+    return{...base,
+      inmSize:sz,bladeKw:bk,cover:cov,
+      sensor:hasC?'あり（固定）':'なし',
+      sensorType:hasC?radio('inmst')||'—':'—',
+      projector:hasC?'LED投光器 40W':'—',
+      travel:radio('inmtr')||'—',travelKw:val('finmtk')||'—',travelModel:val('finmtm')||'—',
+      lift:radio('inmlf')||'—',liftKw:val('finmlk')||'—',liftModel:val('finmlm')||'—',
+      panelType:'自立盤',panelSize:val('finmps')||'容量に応じて選定',
+      cabtyre:radio('inmcb')||'—',cabLen:radio('inmcb')==='あり'?(radio('inmcbl')||'—'):'—',
+      remarks:val('finmrm')||'—'
+    };
+  }
+}
+
+function rr(k,v){
+  if(!v||v==='—') return '';
+  return`<div class="rr"><div class="rk">${k}</div><div class="rv">${v}</div></div>`;
+}
+function rs(title,rows){
+  const content=rows.map(r=>rr(r[0],r[1])).join('');
+  if(!content) return '';
+  return`<div class="rs"><h3>${title}</h3>${content}</div>`;
+}
+
+function buildReview(){
+  const d=getData();
+  let h=rs('基本情報',[
+    ['機種・型番',d.fullModel],['顧客名',d.customer],['現場名・設置場所',d.site],
+    ['出荷予定日',d.shipdate],['担当者',d.staff]
+  ]);
+  if(!d.isINM){
+    h+=rs('カバー・安全装置',[
+      [d.coverType,d.cover],['安全センサー',d.sensor],
+      ['センサー種別',d.sensorType],['センサー箇所数',d.sensorCount],['投光器',d.projector]
+    ]);
+    h+=rs('モーター仕様',[
+      ['駆動方式',d.drive],['メインモーター容量',d.mainMotor],
+      ['モーター形式',d.motorType],['走行モーター',d.travel]
+    ]);
+    h+=rs('制御盤',[
+      ['盤種別',d.panelType],['盤寸法',d.panelSize],['設置位置',d.panelPos],
+      ['電源仕様',d.power],['プラグ形状',d.plug]
+    ]);
+    h+=rs('給水・付帯設備',[
+      ['給水方式',d.water],['キャプタイヤコード',d.cabtyre],['コード長さ',d.cabLen]
+    ]);
+  } else {
+    h+=rs('サイズ・カバー',[
+      ['機種サイズ',d.inmSize],['全カバー',d.cover],['安全センサー',d.sensor],
+      ['センサー種別',d.sensorType],['投光器',d.projector]
+    ]);
+    h+=rs('モーター仕様',[
+      ['ブレードモーター',d.bladeKw],
+      ['走行モーター',d.travel],['走行モーター容量',d.travel==='あり'?d.travelKw:'—'],['走行モーター型番',d.travel==='あり'?d.travelModel:'—'],
+      ['昇降モーター',d.lift],['昇降モーター容量',d.lift==='あり'?d.liftKw:'—'],['昇降モーター型番',d.lift==='あり'?d.liftModel:'—']
+    ]);
+    h+=rs('制御盤',[
+      ['盤種別',d.panelType],['盤寸法',d.panelSize],
+      ['キャプタイヤコード',d.cabtyre],['コード長さ',d.cabLen]
+    ]);
+  }
+  if(d.remarks!=='—') h+=`<div class="rs"><h3>備考</h3><div class="rr"><div class="rv">${d.remarks}</div></div></div>`;
+  document.getElementById('rb').innerHTML=h;
+}
+
+function genPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const d=getData();
+  const mg=18,pw=210,cw=pw-mg*2;
+  let y=0;
+
+  doc.setFillColor(26,26,46);doc.rect(0,0,pw,28,'F');
+  doc.setFillColor(192,57,43);doc.rect(0,28,pw,1.5,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(255,255,255);
+  doc.text('NITTOKU KIKAI KOGYO Co., Ltd.',mg,12);
+  doc.setFontSize(14);doc.text('ELECTRICAL SPECIFICATION',mg,21);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(180,180,180);
+  doc.text('Cutting Machine / Electrical Work Specification Sheet',pw-mg,12,{align:'right'});
+  doc.text('Issue Date: '+d.date,pw-mg,21,{align:'right'});
+  y=38;
+
+  doc.setFillColor(248,247,244);doc.rect(mg,y,cw,28,'F');
+  doc.setDrawColor(216,213,204);doc.rect(mg,y,cw,28,'S');
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(26,26,46);
+  doc.text(d.fullModel,mg+6,y+11);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,100,100);
+  doc.text('Customer: '+d.customer,mg+6,y+18);
+  doc.text('Site: '+d.site,mg+6,y+24);
+  doc.setFont('helvetica','bold');doc.setTextColor(192,57,43);
+  doc.text('Ship: '+d.shipdate,pw-mg-4,y+18,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
+  doc.text('Staff: '+d.staff,pw-mg-4,y+24,{align:'right'});
+  y+=34;
+
+  function sec(title,rows){
+    const vr=rows.filter(r=>r[1]&&r[1]!=='—');
+    if(!vr.length) return;
+    doc.setFillColor(26,26,46);doc.rect(mg,y,cw,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+    doc.text(title,mg+4,y+4.8);y+=7;
+    vr.forEach((r,i)=>{
+      doc.setFillColor(...(i%2===0?[255,255,255]:[250,249,247]));
+      doc.rect(mg,y,cw,7.5,'F');
+      doc.setDrawColor(230,227,220);doc.line(mg,y+7.5,mg+cw,y+7.5);
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(110,110,110);
+      doc.text(r[0],mg+4,y+5);
+      doc.setFont('helvetica','bold');doc.setTextColor(26,26,46);
+      doc.text(String(r[1]),mg+78,y+5);y+=7.5;
+    });
+    doc.setDrawColor(216,213,204);
+    doc.rect(mg,y-vr.length*7.5-7,cw,vr.length*7.5+7,'S');y+=5;
+  }
+
+  if(!d.isINM){
+    sec('COVER & SAFETY / カバー・安全装置',[
+      [d.coverType+' / カバー',d.cover],
+      ['Safety Sensor / 安全センサー',d.sensor],
+      ['Sensor Type / センサー種別',d.sensorType],
+      ['Sensor Points / センサー箇所数',d.sensorCount],
+      ['Projector / 投光器',d.projector],
+    ]);
+    sec('MOTOR SPECS / モーター仕様',[
+      ['Drive Type / 駆動方式',d.drive],
+      ['Main Motor / メインモーター',d.mainMotor],
+      ['Motor Type / モーター形式',d.motorType],
+      ['Travel Motor / 走行モーター',d.travel],
+    ]);
+    sec('CONTROL PANEL / 制御盤',[
+      ['Panel Type / 盤種別',d.panelType],
+      ['Panel Size / 盤寸法',d.panelSize],
+      ['Position / 設置位置',d.panelPos],
+      ['Power Supply / 電源仕様',d.power],
+      ['Plug Type / プラグ形状',d.plug],
+    ]);
+    sec('WATER & UTILITIES / 給水・付帯設備',[
+      ['Water Supply / 給水方式',d.water],
+      ['Cabtyre / キャプタイヤコード',d.cabtyre],
+      ['Cable Length / コード長さ',d.cabLen],
+    ]);
+  } else {
+    sec('SIZE & COVER / サイズ・カバー',[
+      ['Machine Size / 機種サイズ',d.inmSize],
+      ['Cover / 全カバー',d.cover],
+      ['Safety Sensor / 安全センサー',d.sensor],
+      ['Sensor Type / センサー種別',d.sensorType],
+      ['Projector / 投光器',d.projector],
+    ]);
+    sec('MOTOR SPECS / モーター仕様',[
+      ['Blade Motor / ブレードモーター',d.bladeKw],
+      ['Travel Motor / 走行モーター',d.travel],
+      ['Travel kW / 走行モーター容量',d.travel==='あり'?d.travelKw:''],
+      ['Travel Model / 走行モーター型番',d.travel==='あり'?d.travelModel:''],
+      ['Lift Motor / 昇降モーター',d.lift],
+      ['Lift kW / 昇降モーター容量',d.lift==='あり'?d.liftKw:''],
+      ['Lift Model / 昇降モーター型番',d.lift==='あり'?d.liftModel:''],
+    ]);
+    sec('CONTROL PANEL / 制御盤',[
+      ['Panel Type / 盤種別',d.panelType],
+      ['Panel Size / 盤寸法',d.panelSize],
+      ['Cabtyre / キャプタイヤコード',d.cabtyre],
+      ['Cable Length / コード長さ',d.cabLen],
+    ]);
+  }
+
+  if(d.remarks!=='—'){
+    const lines=doc.splitTextToSize(d.remarks,cw-8);
+    const rh=10+lines.length*5;
+    doc.setFillColor(255,248,247);doc.setDrawColor(192,57,43);
+    doc.rect(mg,y,cw,rh,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(192,57,43);
+    doc.text('REMARKS / 備考',mg+4,y+5);
+    doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);doc.setFontSize(8.5);
+    doc.text(lines,mg+4,y+11);y+=rh+5;
+  }
+
+  doc.setFillColor(26,26,46);doc.rect(0,287,pw,10,'F');
+  doc.setFontSize(7);doc.setTextColor(160,160,160);
+  doc.text('日特機械工業株式会社 / NITTOKU KIKAI KOGYO Co., Ltd.',mg,293);
+  doc.text('CONFIDENTIAL — For Electrical Contractor Use Only',pw-mg,293,{align:'right'});
+
+  doc.save('電気工事仕様書_'+d.fullModel+'_'+d.customer.replace(/\s/g,'')+'.pdf');
+}
+
+renderSR();
+</script>
+</body>
+</html>
