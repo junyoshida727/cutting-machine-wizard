@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>切断機 電気工事仕様ウィザード｜日特機械工業</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 :root { --bg:#f5f4f0; --surface:#fff; --border:#d8d5cc; --accent:#1a1a2e; --accent2:#c0392b; --text:#1c1c1c; --muted:#777; --done:#2ecc71; --r:2px; }
@@ -23,6 +24,9 @@ header{background:var(--accent);color:#fff;padding:18px 40px;display:flex;align-
 .sn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.5);font-size:11px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
 .si.done .sn{background:var(--done);border-color:var(--done);color:#fff;}
 .si.active .sn{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.si.clickable{cursor:pointer;}
+.si.clickable:hover .sn{opacity:.8;transform:scale(1.1);}
+.si.clickable:hover .sl{color:rgba(255,255,255,.9);}
 .sl{font-size:9px;color:rgba(255,255,255,.35);white-space:nowrap;display:none;}
 .si.active .sl{color:rgba(255,255,255,.8);display:block;}
 .si.done .sl{color:rgba(255,255,255,.45);display:block;}
@@ -94,13 +98,13 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
         <div class="sw"><select id="fs" onchange="onSeries()">
           <option value="">選択してください</option>
           <optgroup label="NCシリーズ">
-            <option value="NCO">NCO（耐火煉瓦カッター）</option>
-            <option value="NCR">NCR（試験室用切断機）</option>
+            <option value="NCO">NCO</option>
+            <option value="NCR">NCR</option>
             <option value="NCA">NCA</option>
             <option value="NCB">NCB</option>
           </optgroup>
           <optgroup label="INMシリーズ">
-            <option value="INM">INM（煉瓦切断機）</option>
+            <option value="INM">INM</option>
           </optgroup>
         </select></div>
       </div>
@@ -115,9 +119,11 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
       <div class="f"><label>現場名・設置場所</label><input type="text" id="fsi" placeholder="例：京浜事業所"></div>
     </div>
     <div class="g2">
-      <div class="f"><label>出荷予定日</label><input type="text" id="fsh" placeholder="例：2026年5月末"></div>
+      <div class="f"><label>納品予定日</label><input type="text" id="fsh" placeholder="例：2026年5月末"></div>
       <div class="f"><label>担当者名</label><input type="text" id="fst" placeholder="例：吉田"></div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm1" rows="3" placeholder="基本情報に関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><span></span><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
@@ -166,6 +172,8 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
         <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（NCR + カバーあり 固定）</div></div>
       </div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm_nc2" rows="3" placeholder="カバー・安全装置に関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
@@ -183,19 +191,15 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
     <hr class="div">
     <div class="f"><label>メインモーター容量<span class="req">*</span></label>
       <div class="rg">
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk04" value="0.4 kW"><label for="ncmk04">0.4 kW</label></div>
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk07" value="0.75 kW"><label for="ncmk07">0.75 kW</label></div>
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk15" value="1.5 kW"><label for="ncmk15">1.5 kW</label></div>
         <div class="rb"><input type="radio" name="ncmk" id="ncmk22" value="2.2 kW"><label for="ncmk22">2.2 kW</label></div>
         <div class="rb"><input type="radio" name="ncmk" id="ncmk37" value="3.7 kW"><label for="ncmk37">3.7 kW</label></div>
         <div class="rb"><input type="radio" name="ncmk" id="ncmk55" value="5.5 kW"><label for="ncmk55">5.5 kW</label></div>
       </div>
     </div>
-    <div class="f"><label>モーター形式</label>
+    <div class="f"><label>インバーター制御（回転制御）</label>
       <div class="rg">
-        <div class="rb"><input type="radio" name="ncmt" id="ncmt_b" value="HBAブレーキモーター"><label for="ncmt_b">HBAブレーキ</label></div>
-        <div class="rb"><input type="radio" name="ncmt" id="ncmt_s" value="標準モーター"><label for="ncmt_s">標準</label></div>
-        <div class="rb"><input type="radio" name="ncmt" id="ncmt_i" value="インバーター制御"><label for="ncmt_i">インバーター</label></div>
+        <div class="rb"><input type="radio" name="ncinv" id="ncinv_y" value="あり"><label for="ncinv_y">あり</label></div>
+        <div class="rb"><input type="radio" name="ncinv" id="ncinv_n" value="なし"><label for="ncinv_n">なし</label></div>
       </div>
     </div>
     <hr class="div">
@@ -205,6 +209,8 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
         <div class="rb"><input type="radio" name="nct" id="nct_n" value="なし"><label for="nct_n">なし</label></div>
       </div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm_nc3" rows="3" placeholder="モーター仕様に関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
@@ -237,6 +243,8 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
         <div class="rb"><input type="radio" name="ncpl" id="ncpl_s" value="ストレートプラグ"><label for="ncpl_s">ストレート</label></div>
       </div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm_nc4" rows="3" placeholder="制御盤に関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
@@ -304,11 +312,11 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
       </div>
       <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（カバーあり 固定）</div></div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm_inm2" rows="3" placeholder="サイズ・カバーに関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
-
-<!-- INM: Step3 モーター -->
 <div class="sp" id="pinm3">
   <div class="ch"><div class="tag">Step 3</div><h2>モーター仕様</h2><p>各モーターの容量・型番を入力してください</p></div>
   <div class="cb">
@@ -349,11 +357,11 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
         <div class="f"><label>型番</label><input type="text" id="finmlm" placeholder="例：ニッセイ F3S35N15-MR08TNNTB2XT3"></div>
       </div>
     </div>
+    <hr class="div">
+    <div class="f"><label>備考・特記事項</label><textarea id="frm_inm3" rows="3" placeholder="モーター仕様に関する補足事項があれば記載してください"></textarea></div>
   </div>
   <div class="cf"><button class="btn bg" onclick="prev()">← 戻る</button><button class="btn bp" onclick="next()">次へ →</button></div>
 </div>
-
-<!-- INM: Step4 制御盤 -->
 <div class="sp" id="pinm4">
   <div class="ch"><div class="tag">Step 4</div><h2>制御盤・付帯設備</h2><p>INMは自立盤が基本です</p></div>
   <div class="cb">
@@ -407,9 +415,18 @@ function val(id){ return document.getElementById(id).value.trim(); }
 function renderSR(){
   const L=labels();
   document.getElementById('sr').innerHTML=L.map((l,i)=>{
-    const c=i<ci?'done':i===ci?'active':'';
-    return`<div class="si ${c}"><div class="sn">${i<ci?'✓':i+1}</div><div class="sl">${l}</div></div>`;
+    const isDone=i<ci,isActive=i===ci;
+    const c=isDone?'done':isActive?'active':'';
+    const clickable='clickable';
+    return`<div class="si ${c} ${clickable}" onclick="jumpTo(${i})"><div class="sn">${isDone?'✓':i+1}</div><div class="sl">${l}</div></div>`;
   }).join('');
+}
+
+function jumpTo(idx){
+  const r=route();
+  if(idx===r.length-1) buildReview();
+  ci=idx;renderSR();showP(r[ci]);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function showP(id){
   document.querySelectorAll('.sp').forEach(p=>p.classList.remove('active'));
@@ -418,10 +435,11 @@ function showP(id){
 }
 
 function next(){
+  if(!validate(route()[ci])) return;
   const r=route();
-  if(!validate(r[ci])) return;
   if(ci===r.length-2) buildReview();
   ci++;renderSR();showP(r[ci]);
+  saveLS();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function prev(){
@@ -517,7 +535,8 @@ function getData(){
     customer:val('fcu'),site:val('fsi')||'—',
     shipdate:val('fsh')||'—',staff:val('fst')||'—',
     date:new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'}),
-    isINM
+    isINM,
+    rm1:val('frm1')||'—'
   };
   if(!isINM){
     const cov=s==='NCA'?'なし':radio('ncc')||'—';
@@ -529,12 +548,14 @@ function getData(){
       sensorType:hasC?radio('ncst')||'—':'—',
       sensorCount:hasC?radio('ncsc')||'—':'—',
       projector:(s==='NCR'&&hasC)?'LED投光器 40W':'—',
-      drive:radio('ncd')||'—',mainMotor:radio('ncmk')||'—',motorType:radio('ncmt')||'—',
+      drive:radio('ncd')||'—',mainMotor:radio('ncmk')||'—',
+      inverter:radio('ncinv')||'—',
       travel:radio('nct')||'—',
       panelType:radio('ncpt')||'—',panelSize:val('fncps')||'—',panelPos:radio('ncpp')||'—',
       power:'3相 200V / 50Hz・60Hz',plug:radio('ncpl')||'—',
       water:radio('ncw')||'—',
       cabtyre:radio('nccb')||'—',cabLen:radio('nccb')==='あり'?(radio('nccbl')||'—'):'—',
+      rm2:val('frm_nc2')||'—',rm3:val('frm_nc3')||'—',rm4:val('frm_nc4')||'—',
       remarks:val('fncrm')||'—'
     };
   } else {
@@ -551,6 +572,7 @@ function getData(){
       lift:radio('inmlf')||'—',liftKw:val('finmlk')||'—',liftModel:val('finmlm')||'—',
       panelType:'自立盤',panelSize:val('finmps')||'容量に応じて選定',
       cabtyre:radio('inmcb')||'—',cabLen:radio('inmcb')==='あり'?(radio('inmcbl')||'—'):'—',
+      rm2:val('frm_inm2')||'—',rm3:val('frm_inm3')||'—',
       remarks:val('finmrm')||'—'
     };
   }
@@ -570,20 +592,23 @@ function buildReview(){
   const d=getData();
   let h=rs('基本情報',[
     ['機種・型番',d.fullModel],['顧客名',d.customer],['現場名・設置場所',d.site],
-    ['出荷予定日',d.shipdate],['担当者',d.staff]
+    ['納品予定日',d.shipdate],['担当者',d.staff],['備考',d.rm1]
   ]);
   if(!d.isINM){
     h+=rs('カバー・安全装置',[
       [d.coverType,d.cover],['安全センサー',d.sensor],
-      ['センサー種別',d.sensorType],['センサー箇所数',d.sensorCount],['投光器',d.projector]
+      ['センサー種別',d.sensorType],['センサー箇所数',d.sensorCount],['投光器',d.projector],
+      ['備考',d.rm2]
     ]);
     h+=rs('モーター仕様',[
       ['駆動方式',d.drive],['メインモーター容量',d.mainMotor],
-      ['モーター形式',d.motorType],['走行モーター',d.travel]
+      ['インバーター制御',d.inverter],['走行モーター',d.travel],
+      ['備考',d.rm3]
     ]);
     h+=rs('制御盤',[
       ['盤種別',d.panelType],['盤寸法',d.panelSize],['設置位置',d.panelPos],
-      ['電源仕様',d.power],['プラグ形状',d.plug]
+      ['電源仕様',d.power],['プラグ形状',d.plug],
+      ['備考',d.rm4]
     ]);
     h+=rs('給水・付帯設備',[
       ['給水方式',d.water],['キャプタイヤコード',d.cabtyre],['コード長さ',d.cabLen]
@@ -591,142 +616,161 @@ function buildReview(){
   } else {
     h+=rs('サイズ・カバー',[
       ['機種サイズ',d.inmSize],['全カバー',d.cover],['安全センサー',d.sensor],
-      ['センサー種別',d.sensorType],['投光器',d.projector]
+      ['センサー種別',d.sensorType],['投光器',d.projector],
+      ['備考',d.rm2]
     ]);
     h+=rs('モーター仕様',[
       ['ブレードモーター',d.bladeKw],
       ['走行モーター',d.travel],['走行モーター容量',d.travel==='あり'?d.travelKw:'—'],['走行モーター型番',d.travel==='あり'?d.travelModel:'—'],
-      ['昇降モーター',d.lift],['昇降モーター容量',d.lift==='あり'?d.liftKw:'—'],['昇降モーター型番',d.lift==='あり'?d.liftModel:'—']
+      ['昇降モーター',d.lift],['昇降モーター容量',d.lift==='あり'?d.liftKw:'—'],['昇降モーター型番',d.lift==='あり'?d.liftModel:'—'],
+      ['備考',d.rm3]
     ]);
     h+=rs('制御盤',[
       ['盤種別',d.panelType],['盤寸法',d.panelSize],
       ['キャプタイヤコード',d.cabtyre],['コード長さ',d.cabLen]
     ]);
   }
-  if(d.remarks!=='—') h+=`<div class="rs"><h3>備考</h3><div class="rr"><div class="rv">${d.remarks}</div></div></div>`;
+  if(d.remarks!=='—') h+=`<div class="rs"><h3>備考（給水・付帯設備）</h3><div class="rr"><div class="rv">${d.remarks}</div></div></div>`;
   document.getElementById('rb').innerHTML=h;
 }
 
 function genPDF(){
-  const{jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const d=getData();
-  const mg=18,pw=210,cw=pw-mg*2;
-  let y=0;
+  const btn=document.querySelector('.bd');
+  btn.textContent='生成中…';btn.disabled=true;
 
-  doc.setFillColor(26,26,46);doc.rect(0,0,pw,28,'F');
-  doc.setFillColor(192,57,43);doc.rect(0,28,pw,1.5,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(255,255,255);
-  doc.text('NITTOKU KIKAI KOGYO Co., Ltd.',mg,12);
-  doc.setFontSize(14);doc.text('ELECTRICAL SPECIFICATION',mg,21);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(180,180,180);
-  doc.text('Cutting Machine / Electrical Work Specification Sheet',pw-mg,12,{align:'right'});
-  doc.text('Issue Date: '+d.date,pw-mg,21,{align:'right'});
-  y=38;
+  // 印刷用ラッパーを一時生成
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-9999px;top:0;width:794px;background:#fff;font-family:"Noto Sans JP",sans-serif;padding:20px;box-sizing:border-box;';
 
-  doc.setFillColor(248,247,244);doc.rect(mg,y,cw,28,'F');
-  doc.setDrawColor(216,213,204);doc.rect(mg,y,cw,28,'S');
-  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(26,26,46);
-  doc.text(d.fullModel,mg+6,y+11);
-  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,100,100);
-  doc.text('Customer: '+d.customer,mg+6,y+18);
-  doc.text('Site: '+d.site,mg+6,y+24);
-  doc.setFont('helvetica','bold');doc.setTextColor(192,57,43);
-  doc.text('Ship: '+d.shipdate,pw-mg-4,y+18,{align:'right'});
-  doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
-  doc.text('Staff: '+d.staff,pw-mg-4,y+24,{align:'right'});
-  y+=34;
+  // ヘッダー
+  wrap.innerHTML=`
+    <div style="background:#1a1a2e;color:#fff;padding:10px 16px;margin-bottom:0;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;">NITTOKU KIKAI KOGYO Co., Ltd.</div>
+      <div style="font-size:14px;font-weight:700;margin-top:3px;letter-spacing:1px;">ELECTRICAL SPECIFICATION</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;">Cutting Machine / Electrical Work Specification Sheet &nbsp;|&nbsp; 発行日: ${d.date}</div>
+    </div>
+    <div style="background:#c0392b;height:3px;margin-bottom:10px;"></div>
+    <div style="background:#f8f7f4;border:1px solid #d8d5cc;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;">${d.fullModel}</div>
+        <div style="font-size:10px;color:#777;margin-top:3px;">顧客: ${d.customer} &nbsp;|&nbsp; 現場: ${d.site}</div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#777;">
+        <div style="color:#c0392b;font-weight:600;">納品: ${d.shipdate}</div>
+        <div style="margin-top:2px;">担当: ${d.staff}</div>
+      </div>
+    </div>
+    <div id="_pdf_body"></div>
+    <div style="background:#1a1a2e;color:#aaa;font-size:8px;padding:5px 12px;margin-top:10px;display:flex;justify-content:space-between;">
+      <span>日特機械工業株式会社 / NITTOKU KIKAI KOGYO Co., Ltd.</span>
+      <span>CONFIDENTIAL — For Electrical Contractor Use Only</span>
+    </div>`;
+  document.body.appendChild(wrap);
 
-  function sec(title,rows){
-    const vr=rows.filter(r=>r[1]&&r[1]!=='—');
-    if(!vr.length) return;
-    doc.setFillColor(26,26,46);doc.rect(mg,y,cw,7,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-    doc.text(title,mg+4,y+4.8);y+=7;
-    vr.forEach((r,i)=>{
-      doc.setFillColor(...(i%2===0?[255,255,255]:[250,249,247]));
-      doc.rect(mg,y,cw,7.5,'F');
-      doc.setDrawColor(230,227,220);doc.line(mg,y+7.5,mg+cw,y+7.5);
-      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(110,110,110);
-      doc.text(r[0],mg+4,y+5);
-      doc.setFont('helvetica','bold');doc.setTextColor(26,26,46);
-      doc.text(String(r[1]),mg+78,y+5);y+=7.5;
-    });
-    doc.setDrawColor(216,213,204);
-    doc.rect(mg,y-vr.length*7.5-7,cw,vr.length*7.5+7,'S');y+=5;
-  }
+  // セクション描画
+  const body=wrap.querySelector('#_pdf_body');
+  const rbHTML=document.getElementById('rb').innerHTML;
+  const clone=document.createElement('div');
+  clone.innerHTML=rbHTML;
+  // rs / rr スタイルを inline で再現
+  clone.querySelectorAll('.rs').forEach(rs=>{
+    rs.style.cssText='margin-bottom:8px;';
+    const h3=rs.querySelector('h3');
+    if(h3) h3.style.cssText='font-size:9px;letter-spacing:2px;color:#fff;background:#1a1a2e;padding:4px 8px;margin-bottom:0;text-transform:uppercase;font-family:"DM Mono",monospace;';
+  });
+  clone.querySelectorAll('.rr').forEach((rr,i)=>{
+    rr.style.cssText=`display:flex;gap:12px;padding:4px 8px;font-size:10px;background:${i%2===0?'#fff':'#faf9f7'};border-bottom:1px solid #f0ede8;`;
+  });
+  clone.querySelectorAll('.rk').forEach(rk=>{ rk.style.cssText='color:#777;width:160px;flex-shrink:0;'; });
+  clone.querySelectorAll('.rv').forEach(rv=>{ rv.style.cssText='font-weight:600;color:#1c1c1c;'; });
+  body.appendChild(clone);
 
-  if(!d.isINM){
-    sec('COVER & SAFETY / カバー・安全装置',[
-      [d.coverType+' / カバー',d.cover],
-      ['Safety Sensor / 安全センサー',d.sensor],
-      ['Sensor Type / センサー種別',d.sensorType],
-      ['Sensor Points / センサー箇所数',d.sensorCount],
-      ['Projector / 投光器',d.projector],
-    ]);
-    sec('MOTOR SPECS / モーター仕様',[
-      ['Drive Type / 駆動方式',d.drive],
-      ['Main Motor / メインモーター',d.mainMotor],
-      ['Motor Type / モーター形式',d.motorType],
-      ['Travel Motor / 走行モーター',d.travel],
-    ]);
-    sec('CONTROL PANEL / 制御盤',[
-      ['Panel Type / 盤種別',d.panelType],
-      ['Panel Size / 盤寸法',d.panelSize],
-      ['Position / 設置位置',d.panelPos],
-      ['Power Supply / 電源仕様',d.power],
-      ['Plug Type / プラグ形状',d.plug],
-    ]);
-    sec('WATER & UTILITIES / 給水・付帯設備',[
-      ['Water Supply / 給水方式',d.water],
-      ['Cabtyre / キャプタイヤコード',d.cabtyre],
-      ['Cable Length / コード長さ',d.cabLen],
-    ]);
-  } else {
-    sec('SIZE & COVER / サイズ・カバー',[
-      ['Machine Size / 機種サイズ',d.inmSize],
-      ['Cover / 全カバー',d.cover],
-      ['Safety Sensor / 安全センサー',d.sensor],
-      ['Sensor Type / センサー種別',d.sensorType],
-      ['Projector / 投光器',d.projector],
-    ]);
-    sec('MOTOR SPECS / モーター仕様',[
-      ['Blade Motor / ブレードモーター',d.bladeKw],
-      ['Travel Motor / 走行モーター',d.travel],
-      ['Travel kW / 走行モーター容量',d.travel==='あり'?d.travelKw:''],
-      ['Travel Model / 走行モーター型番',d.travel==='あり'?d.travelModel:''],
-      ['Lift Motor / 昇降モーター',d.lift],
-      ['Lift kW / 昇降モーター容量',d.lift==='あり'?d.liftKw:''],
-      ['Lift Model / 昇降モーター型番',d.lift==='あり'?d.liftModel:''],
-    ]);
-    sec('CONTROL PANEL / 制御盤',[
-      ['Panel Type / 盤種別',d.panelType],
-      ['Panel Size / 盤寸法',d.panelSize],
-      ['Cabtyre / キャプタイヤコード',d.cabtyre],
-      ['Cable Length / コード長さ',d.cabLen],
-    ]);
-  }
-
-  if(d.remarks!=='—'){
-    const lines=doc.splitTextToSize(d.remarks,cw-8);
-    const rh=10+lines.length*5;
-    doc.setFillColor(255,248,247);doc.setDrawColor(192,57,43);
-    doc.rect(mg,y,cw,rh,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(192,57,43);
-    doc.text('REMARKS / 備考',mg+4,y+5);
-    doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);doc.setFontSize(8.5);
-    doc.text(lines,mg+4,y+11);y+=rh+5;
-  }
-
-  doc.setFillColor(26,26,46);doc.rect(0,287,pw,10,'F');
-  doc.setFontSize(7);doc.setTextColor(160,160,160);
-  doc.text('日特機械工業株式会社 / NITTOKU KIKAI KOGYO Co., Ltd.',mg,293);
-  doc.text('CONFIDENTIAL — For Electrical Contractor Use Only',pw-mg,293,{align:'right'});
-
-  doc.save('電気工事仕様書_'+d.fullModel+'_'+d.customer.replace(/\s/g,'')+'.pdf');
+  html2canvas(wrap,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(canvas=>{
+    document.body.removeChild(wrap);
+    const{jsPDF}=window.jspdf;
+    const imgData=canvas.toDataURL('image/jpeg',0.92);
+    const pw=210,ph=297;
+    const imgW=pw;
+    const imgH=canvas.height*pw/canvas.width;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    let posY=0;
+    while(posY<imgH){
+      if(posY>0) doc.addPage();
+      doc.addImage(imgData,'JPEG',0,-posY,imgW,imgH);
+      posY+=ph;
+    }
+    doc.save('電気工事仕様書_'+d.fullModel+'_'+d.customer.replace(/\s/g,'')+'.pdf');
+    btn.textContent='📄 PDF 出力';btn.disabled=false;
+  }).catch(()=>{
+    document.body.removeChild(wrap);
+    btn.textContent='📄 PDF 出力';btn.disabled=false;
+    alert('PDF生成に失敗しました。');
+  });
 }
 
+// ── LocalStorage ──────────────────────────────────────────
+const LS_KEY = 'cmw_state';
+const TEXT_IDS = ['fmn','fcu','fsi','fsh','fst','fncps','fncrm','finmtk','finmtm','finmlk','finmlm','finmps','finmrm','frm1','frm_nc2','frm_nc3','frm_nc4','frm_inm2','frm_inm3'];
+const RADIO_NAMES = ['ncc','ncst','ncsc','ncd','ncmk','ncinv','nct','ncpt','ncpp','ncpl','ncw','nccb','nccbl','inmsz','inmc','inmst','inmbk','inmtr','inmlf','inmcb','inmcbl'];
+
+function saveLS(){
+  const state = { ci, series: document.getElementById('fs').value };
+  TEXT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) state[id] = el.value;
+  });
+  RADIO_NAMES.forEach(name => { state['r_'+name] = radio(name); });
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+function restoreLS(){
+  let state;
+  try { state = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){}
+  if(!state) return;
+
+  // series select → trigger UI update
+  const fs = document.getElementById('fs');
+  if(state.series){ fs.value = state.series; onSeries(); }
+
+  // text fields
+  TEXT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && state[id] != null) el.value = state[id];
+  });
+
+  // radio buttons
+  RADIO_NAMES.forEach(name => {
+    const v = state['r_'+name];
+    if(!v) return;
+    const el = document.querySelector(`input[name="${name}"][value="${v}"]`);
+    if(el){ el.checked = true; }
+  });
+
+  // re-trigger conditional UI
+  if(state['r_ncc'])   onNCCov();
+  if(state['r_inmsz']) onINMSz();
+  if(state['r_inmc'])  onINMCov();
+  if(state['r_inmtr']) onINMTr();
+  if(state['r_inmlf']) onINMLf();
+  if(state['r_nccb'])  onNCCab();
+  if(state['r_inmcb']) onINMCab();
+
+  // restore step position
+  if(state.ci && state.ci > 0){
+    ci = state.ci;
+    renderSR();
+    showP(route()[ci]);
+  }
+}
+
+// 入力変化のたびに自動保存
+document.addEventListener('change', saveLS);
+document.addEventListener('input',  saveLS);
+// ──────────────────────────────────────────────────────────
+
 renderSR();
+restoreLS();
 </script>
 </body>
 </html>
