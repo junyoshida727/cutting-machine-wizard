@@ -163,27 +163,47 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
       </div>
     </div>
     <div id="c_nca" style="display:none">
-      <p style="color:var(--muted);font-size:13px;padding:8px 0 20px">NCA にはカバーオプションはありません。次へ進んでください。</p>
+      <div class="f"><label>全カバー<span class="req">*</span></label>
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncc" id="ncc_y3" value="あり" onchange="onNCCov()"><label for="ncc_y3">あり</label></div>
+          <div class="rb"><input type="radio" name="ncc" id="ncc_n3" value="なし" onchange="onNCCov()"><label for="ncc_n3">なし</label></div>
+        </div>
+      </div>
     </div>
     <div class="cond" id="nc_cs">
       <div class="cl">▸ カバーあり — 安全装置</div>
-      <div class="f"><label>安全センサー</label><div class="fv">あり（固定）</div></div>
-      <div class="f"><label>センサー種別<span class="req">*</span></label>
-        <div class="rg">
-          <div class="rb"><input type="radio" name="ncst" id="ncst_nc" value="非接触型（キーエンス照光型）"><label for="ncst_nc">非接触型</label></div>
-          <div class="rb"><input type="radio" name="ncst" id="ncst_lk" value="ロック式（キーエンスGSシリーズ）"><label for="ncst_lk">ロック式</label></div>
+      <!-- NCR: センサーあり固定 -->
+      <div id="nc_sen_f" style="display:none">
+        <div class="f"><label>安全センサー</label><div class="fv">あり（固定）</div></div>
+      </div>
+      <!-- NCO/NCA/NCB: センサーあり/なし選択 -->
+      <div id="nc_sen_r" style="display:none">
+        <div class="f"><label>安全センサー</label>
+          <div class="rg">
+            <div class="rb"><input type="radio" name="ncsen" id="ncsen_y" value="あり" onchange="onNCSen()"><label for="ncsen_y">あり</label></div>
+            <div class="rb"><input type="radio" name="ncsen" id="ncsen_n" value="なし" onchange="onNCSen()"><label for="ncsen_n">なし</label></div>
+          </div>
         </div>
       </div>
-      <div class="f"><label>センサー設置箇所数<span class="req">*</span></label>
-        <div class="rg">
-          <div class="rb"><input type="radio" name="ncsc" id="ncsc1" value="1か所"><label for="ncsc1">1か所</label></div>
-          <div class="rb"><input type="radio" name="ncsc" id="ncsc2" value="2か所"><label for="ncsc2">2か所</label></div>
-          <div class="rb"><input type="radio" name="ncsc" id="ncsc3" value="3か所"><label for="ncsc3">3か所</label></div>
-          <div class="rb"><input type="radio" name="ncsc" id="ncsc4" value="4か所以上"><label for="ncsc4">4か所以上</label></div>
+      <!-- センサーあり時のみ表示（NCR常時 / NCO・NCA・NCB はあり選択時） -->
+      <div id="nc_sen_d" style="display:none">
+        <div class="f"><label>センサー種別<span class="req">*</span></label>
+          <div class="rg">
+            <div class="rb"><input type="radio" name="ncst" id="ncst_nc" value="非接触型（キーエンス照光型）"><label for="ncst_nc">非接触型</label></div>
+            <div class="rb"><input type="radio" name="ncst" id="ncst_lk" value="ロック式（キーエンスGSシリーズ）"><label for="ncst_lk">ロック式</label></div>
+          </div>
         </div>
-      </div>
-      <div id="nc_proj" style="display:none">
-        <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（NCR + カバーあり 固定）</div></div>
+        <div class="f"><label>センサー設置箇所数<span class="req">*</span></label>
+          <div class="rg">
+            <div class="rb"><input type="radio" name="ncsc" id="ncsc1" value="1か所"><label for="ncsc1">1か所</label></div>
+            <div class="rb"><input type="radio" name="ncsc" id="ncsc2" value="2か所"><label for="ncsc2">2か所</label></div>
+            <div class="rb"><input type="radio" name="ncsc" id="ncsc3" value="3か所"><label for="ncsc3">3か所</label></div>
+            <div class="rb"><input type="radio" name="ncsc" id="ncsc4" value="4か所以上"><label for="ncsc4">4か所以上</label></div>
+          </div>
+        </div>
+        <div id="nc_proj" style="display:none">
+          <div class="f"><label>投光器（LED 40W）</label><div class="fv">あり（NCR + カバーあり 固定）</div></div>
+        </div>
       </div>
     </div>
     <hr class="div">
@@ -204,11 +224,14 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
     </div>
     <hr class="div">
     <div class="f"><label>メインモーター容量<span class="req">*</span></label>
-      <div class="rg">
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk22" value="2.2 kW"><label for="ncmk22">2.2 kW</label></div>
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk37" value="3.7 kW"><label for="ncmk37">3.7 kW</label></div>
-        <div class="rb"><input type="radio" name="ncmk" id="ncmk55" value="5.5 kW"><label for="ncmk55">5.5 kW</label></div>
+      <div id="nc_mk_sel">
+        <div class="rg">
+          <div class="rb"><input type="radio" name="ncmk" id="ncmk22" value="2.2 kW"><label for="ncmk22">2.2 kW</label></div>
+          <div class="rb"><input type="radio" name="ncmk" id="ncmk37" value="3.7 kW"><label for="ncmk37">3.7 kW</label></div>
+          <div class="rb"><input type="radio" name="ncmk" id="ncmk55" value="5.5 kW"><label for="ncmk55">5.5 kW</label></div>
+        </div>
       </div>
+      <div id="nc_mk_fix" style="display:none"><div class="fv" id="nc_mk_fix_val"></div></div>
     </div>
     <div class="f"><label>インバーター制御（回転制御）</label>
       <div class="rg">
@@ -518,12 +541,33 @@ function onSeries(){
   document.getElementById('c_nca').style.display=s==='NCA'?'block':'none';
   document.querySelectorAll('input[name="ncc"]').forEach(r=>r.checked=false);
   document.getElementById('nc_cs').classList.remove('show');
+  document.getElementById('nc_sen_d').style.display='none';
+  document.getElementById('nc_sen_f').style.display='none';
+  document.getElementById('nc_sen_r').style.display='none';
+  // メインモーター固定値切替
+  const isFixed=s==='NCA'||s==='NCB';
+  document.getElementById('nc_mk_sel').style.display=isFixed?'none':'block';
+  document.getElementById('nc_mk_fix').style.display=isFixed?'block':'none';
+  if(isFixed) document.getElementById('nc_mk_fix_val').textContent=s==='NCA'?'1.5 kW（固定）':'2.2 kW（固定）';
 }
 function onNCCov(){
   const v=radio('ncc'),s=ser();
   document.getElementById('nc_cs').classList.toggle('show',v==='あり');
-  if(v!=='あり'){document.querySelectorAll('input[name="ncst"],input[name="ncsc"]').forEach(r=>r.checked=false);}
-  document.getElementById('nc_proj').style.display=(v==='あり'&&s==='NCR')?'block':'none';
+  if(v!=='あり'){
+    document.querySelectorAll('input[name="ncst"],input[name="ncsc"],input[name="ncsen"]').forEach(r=>r.checked=false);
+    document.getElementById('nc_sen_d').style.display='none';
+  }
+  // NCR: センサー固定あり / NCO・NCA・NCB: あり/なし選択
+  const isNCR=s==='NCR';
+  document.getElementById('nc_sen_f').style.display=(v==='あり'&&isNCR)?'block':'none';
+  document.getElementById('nc_sen_r').style.display=(v==='あり'&&!isNCR)?'block':'none';
+  // NCR+カバーあり → センサー詳細常時表示
+  if(v==='あり'&&isNCR) document.getElementById('nc_sen_d').style.display='block';
+  document.getElementById('nc_proj').style.display=(v==='あり'&&isNCR)?'block':'none';
+}
+function onNCSen(){
+  document.getElementById('nc_sen_d').style.display=radio('ncsen')==='あり'?'block':'none';
+  if(radio('ncsen')!=='あり') document.querySelectorAll('input[name="ncst"],input[name="ncsc"]').forEach(r=>r.checked=false);
 }
 function onINMSz(){
   const v=radio('inmsz');
@@ -551,16 +595,19 @@ function getData(){
     rm1:val('frm1')||'—'
   };
   if(!isINM){
-    const cov=s==='NCA'?'なし':radio('ncc')||'—';
-    const ct=s==='NCO'?'アクリルカバー':(s==='NCR'||s==='NCB')?'全カバー':'—';
-    const hasC=s!=='NCA'&&cov==='あり';
+    const cov=radio('ncc')||'—';
+    const ct=s==='NCO'?'アクリルカバー':(s==='NCR'||s==='NCB'||s==='NCA')?'全カバー':'—';
+    const hasC=cov==='あり';
+    const sensorVal=s==='NCR'?(hasC?'あり':'なし'):(hasC?(radio('ncsen')||'—'):'なし');
+    const hasSen=sensorVal==='あり';
+    const mainMotor=s==='NCA'?'1.5 kW':s==='NCB'?'2.2 kW':(radio('ncmk')||'—');
     return{...base,
       coverType:ct,cover:cov,
-      sensor:hasC?'あり（固定）':'なし',
-      sensorType:hasC?radio('ncst')||'—':'—',
-      sensorCount:hasC?radio('ncsc')||'—':'—',
+      sensor:sensorVal,
+      sensorType:hasSen?radio('ncst')||'—':'—',
+      sensorCount:hasSen?radio('ncsc')||'—':'—',
       projector:(s==='NCR'&&hasC)?'LED投光器 40W':'—',
-      drive:radio('ncd')||'—',mainMotor:radio('ncmk')||'—',
+      drive:radio('ncd')||'—',mainMotor,
       inverter:radio('ncinv')||'—',
       travel:radio('nct')||'—',
       panelType:radio('ncpt')||'—',panelSize:val('fncps')||'—',panelPos:radio('ncpp')||'—',
@@ -724,7 +771,7 @@ function genPDF(){
 // ── LocalStorage ──────────────────────────────────────────
 const LS_KEY = 'cmw_state';
 const TEXT_IDS = ['fmn','fcu','fsi','fsh','fst','fncps','fncrm','finmtk','finmtm','finmlk','finmlm','finmps','finmrm','frm1','frm_nc2','frm_nc3','frm_nc4','frm_inm2','frm_inm3'];
-const RADIO_NAMES = ['ncc','ncst','ncsc','ncd','ncmk','ncinv','nct','ncpt','ncpp','ncpl','ncw','nccb','nccbl','inmsz','inmc','inmst','inmbk','inmtr','inmlf','inmcb','inmcbl'];
+const RADIO_NAMES = ['ncc','ncst','ncsc','ncsen','ncd','ncmk','ncinv','nct','ncpt','ncpp','ncpl','ncw','nccb','nccbl','inmsz','inmc','inmst','inmbk','inmtr','inmlf','inmcb','inmcbl'];
 
 function saveLS(){
   const state = { ci, series: document.getElementById('fs').value };
@@ -750,6 +797,7 @@ function applyState(state){
     if(el){ el.checked = true; }
   });
   if(state['r_ncc'])   onNCCov();
+  if(state['r_ncsen']) onNCSen();
   if(state['r_inmsz']) onINMSz();
   if(state['r_inmc'])  onINMCov();
   if(state['r_inmtr']) onINMTr();
