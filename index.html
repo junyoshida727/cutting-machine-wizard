@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
-:root { --bg:#f5f4f0; --surface:#fff; --border:#d8d5cc; --accent:#1a1a2e; --accent2:#c0392b; --text:#1c1c1c; --muted:#777; --done:#2ecc71; --r:2px; }
+:root { --bg:#f5f4f0; --surface:#fff; --border:#d8d5cc; --accent:#1a1a2e; --accent2:#c0392b; --text:#1c1c1c; --muted:#777; --neon:#00e676; --orange:#ff6b00; --r:2px; }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 header{background:var(--accent);color:#fff;padding:18px 40px;display:flex;align-items:center;gap:20px;border-bottom:3px solid var(--accent2);}
@@ -16,22 +16,25 @@ header{background:var(--accent);color:#fff;padding:18px 40px;display:flex;align-
 .hdiv{width:1px;height:28px;background:rgba(255,255,255,.25);}
 .htitle .m{font-size:15px;font-weight:500;letter-spacing:1px;}
 .htitle .s{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;margin-top:2px;font-family:'DM Mono',monospace;}
-.pw{background:var(--accent);padding:0 40px 20px;}
-.sr{display:flex;align-items:center;max-width:860px;}
-.si{display:flex;align-items:center;gap:6px;flex:1;position:relative;}
-.si:not(:last-child)::after{content:'';position:absolute;left:26px;top:13px;width:calc(100% - 26px);height:1px;background:rgba(255,255,255,.2);transition:background .3s;}
-.si.done::after{background:var(--done);}
-.sn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.5);font-size:11px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
-.si.done .sn{background:var(--done);border-color:var(--done);color:#fff;}
-.si.active .sn{background:var(--accent2);border-color:var(--accent2);color:#fff;}
-.si.clickable{cursor:pointer;}
-.si.clickable:hover .sn{opacity:.8;transform:scale(1.1);}
-.si.clickable:hover .sl{color:rgba(255,255,255,.9);}
-.sl{font-size:9px;color:rgba(255,255,255,.35);white-space:nowrap;display:none;}
-.si.active .sl{color:rgba(255,255,255,.8);display:block;}
-.si.done .sl{color:rgba(255,255,255,.45);display:block;}
+/* ── Step bar ── */
+.pw{background:#fff;padding:0 40px;border-bottom:1px solid #e8e6e0;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.sr{display:flex;align-items:stretch;max-width:860px;height:56px;}
+.si{display:flex;align-items:center;gap:7px;flex:1;position:relative;cursor:pointer;padding:0 4px;transition:background .15s;}
+.si:hover{background:rgba(0,230,118,.06);}
+/* connector line between steps */
+.si:not(:last-child)::after{content:'';position:absolute;right:0;top:50%;width:1px;height:60%;transform:translateY(-50%);background:#e8e6e0;transition:background .3s;}
+.si.done:not(:last-child)::after{background:var(--neon);}
+/* circle */
+.sn{width:28px;height:28px;border-radius:50%;background:#f0efec;border:2px solid #d8d5cc;color:#aaa;font-size:11px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;font-weight:500;}
+.si.done .sn{background:var(--neon);border-color:var(--neon);color:#1a1a2e;font-size:13px;}
+.si.active .sn{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 0 0 4px rgba(255,107,0,.15);}
+/* label */
+.sl{font-size:9px;color:#bbb;white-space:nowrap;letter-spacing:.3px;line-height:1.2;}
+.si.active .sl{color:var(--orange);font-weight:600;}
+.si.done .sl{color:#555;}
+/* ── end step bar ── */
 main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:700px;box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:700px;box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden;position:relative;}
 .alert{background:#fff8f7;border:1px solid #f5c6c2;padding:12px 16px;font-size:12px;color:#8b2020;margin:16px 36px 0;border-radius:var(--r);display:none;}
 .alert.show{display:block;}
 .ch{padding:28px 36px 20px;border-bottom:1px solid var(--border);background:#faf9f7;}
@@ -73,6 +76,17 @@ main{flex:1;display:flex;justify-content:center;padding:40px 20px 60px;}
 .rv{font-weight:500;}
 .sp{display:none;}
 .sp.active{display:block;}
+/* ── Resume dialog overlay ── */
+.resume-overlay{position:absolute;inset:0;background:rgba(255,255,255,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:100;padding:40px;}
+.resume-overlay .ri{font-size:36px;margin-bottom:4px;}
+.resume-overlay h3{font-size:17px;font-weight:600;color:var(--accent);}
+.resume-overlay p{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;}
+.resume-overlay .rbtn{display:flex;gap:12px;margin-top:8px;}
+.resume-overlay .rbtn button{padding:12px 28px;border-radius:var(--r);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;}
+.ro-resume{background:var(--accent);color:#fff;}
+.ro-resume:hover{background:#2c2c4e;}
+.ro-discard{background:transparent;border-color:var(--border)!important;color:var(--muted);}
+.ro-discard:hover{border-color:var(--muted)!important;color:var(--text);}
 </style>
 </head>
 <body>
@@ -417,8 +431,7 @@ function renderSR(){
   document.getElementById('sr').innerHTML=L.map((l,i)=>{
     const isDone=i<ci,isActive=i===ci;
     const c=isDone?'done':isActive?'active':'';
-    const clickable='clickable';
-    return`<div class="si ${c} ${clickable}" onclick="jumpTo(${i})"><div class="sn">${isDone?'✓':i+1}</div><div class="sl">${l}</div></div>`;
+    return`<div class="si ${c}" onclick="jumpTo(${i})"><div class="sn">${isDone?'✓':i+1}</div><div class="sl">${l}</div></div>`;
   }).join('');
 }
 
@@ -435,7 +448,6 @@ function showP(id){
 }
 
 function next(){
-  if(!validate(route()[ci])) return;
   const r=route();
   if(ci===r.length-2) buildReview();
   ci++;renderSR();showP(r[ci]);
@@ -724,30 +736,19 @@ function saveLS(){
   localStorage.setItem(LS_KEY, JSON.stringify(state));
 }
 
-function restoreLS(){
-  let state;
-  try { state = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){}
-  if(!state) return;
-
-  // series select → trigger UI update
+function applyState(state){
   const fs = document.getElementById('fs');
   if(state.series){ fs.value = state.series; onSeries(); }
-
-  // text fields
   TEXT_IDS.forEach(id => {
     const el = document.getElementById(id);
     if(el && state[id] != null) el.value = state[id];
   });
-
-  // radio buttons
   RADIO_NAMES.forEach(name => {
     const v = state['r_'+name];
     if(!v) return;
     const el = document.querySelector(`input[name="${name}"][value="${v}"]`);
     if(el){ el.checked = true; }
   });
-
-  // re-trigger conditional UI
   if(state['r_ncc'])   onNCCov();
   if(state['r_inmsz']) onINMSz();
   if(state['r_inmc'])  onINMCov();
@@ -755,13 +756,52 @@ function restoreLS(){
   if(state['r_inmlf']) onINMLf();
   if(state['r_nccb'])  onNCCab();
   if(state['r_inmcb']) onINMCab();
-
-  // restore step position
   if(state.ci && state.ci > 0){
     ci = state.ci;
     renderSR();
     showP(route()[ci]);
   }
+}
+
+function restoreLS(){
+  let state;
+  try { state = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){}
+  if(!state || !state.series) return;
+
+  // 前回データあり → ダイアログ表示
+  const name = (state['fcu']||'').trim();
+  const model = (state.series||'') + (state['fmn']||'');
+  const stepLabel = labels()[state.ci||0] || '';
+  const desc = (model||name)
+    ? `前回の入力（${[model,name].filter(Boolean).join(' / ')}）が保存されています。`
+    : '前回の入力データが保存されています。';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'resume-overlay';
+  overlay.id = 'resumeOverlay';
+  overlay.innerHTML = `
+    <div class="ri">📋</div>
+    <h3>前回の作業を再開しますか？</h3>
+    <p>${desc}<br>再開すると Step「${stepLabel}」から続きを入力できます。</p>
+    <div class="rbtn">
+      <button class="ro-resume" onclick="doResume()">前回の続きから再開</button>
+      <button class="ro-discard" onclick="doDiscard()">破棄して新規作成</button>
+    </div>`;
+  document.querySelector('.card').appendChild(overlay);
+  // ダイアログ表示中は一時的にstateを保持
+  window._pendingState = state;
+}
+
+function doResume(){
+  document.getElementById('resumeOverlay').remove();
+  applyState(window._pendingState);
+  window._pendingState = null;
+}
+
+function doDiscard(){
+  document.getElementById('resumeOverlay').remove();
+  localStorage.removeItem(LS_KEY);
+  window._pendingState = null;
 }
 
 // 入力変化のたびに自動保存
