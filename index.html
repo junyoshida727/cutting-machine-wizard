@@ -443,19 +443,33 @@ const NC_L  = ['基本情報','カバー・安全','モーター','制御盤','�
 const INM_L = ['基本情報','サイズ・カバー','モーター','制御盤','確認・出力'];
 let ci = 0;
 
-// ── ラジオボタン 再クリックで選択解除（クロスブラウザ対応）──
-// clickキャプチャ時点では radio.checked はまだ「クリック前の状態」
-// → already checked なら preventDefault でブラウザの再チェックを阻止して解除
+// ── ラジオボタン 再クリックで選択解除（Edge 対応）──
+// label クリック後にブラウザ側で再選択される環境があるため、
+// クリック前の選択状態を記録し、クリック処理後に解除を反映する。
+const radioWasChecked = new WeakMap();
+
+function eventRadio(target) {
+  const el = target instanceof Element ? target : target.parentElement;
+  if (!el) return null;
+  if (el.matches('input[type="radio"]')) return el;
+  const lbl = el.closest('label');
+  if (!lbl) return null;
+  return lbl.control || (lbl.htmlFor ? document.getElementById(lbl.htmlFor) : null);
+}
+
+document.addEventListener('pointerdown', function(e) {
+  const radio = eventRadio(e.target);
+  if (radio && radio.type === 'radio') radioWasChecked.set(radio, radio.checked);
+}, true);
+
 document.addEventListener('click', function(e) {
-  const lbl = e.target.closest('label');
-  if (!lbl) return;
-  const radio = lbl.control || (lbl.htmlFor ? document.getElementById(lbl.htmlFor) : null);
-  if (!radio || radio.type !== 'radio') return;
-  if (radio.checked) {
-    e.preventDefault();
+  const radio = eventRadio(e.target);
+  if (!radio || radio.type !== 'radio' || !radioWasChecked.get(radio)) return;
+  e.preventDefault();
+  setTimeout(() => {
     radio.checked = false;
     radio.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+  }, 0);
 }, true);
 // ──────────────────────────────────────────────────────────
 
