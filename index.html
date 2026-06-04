@@ -478,6 +478,9 @@ function route(){ return ser()==='INM'?INM_R:NC_R; }
 function labels(){ return ser()==='INM'?INM_L:NC_L; }
 function radio(n){ const e=document.querySelector(`input[name="${n}"]:checked`); return e?e.value:''; }
 function val(id){ return document.getElementById(id).value.trim(); }
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 function renderSR(){
   const L=labels();
@@ -569,11 +572,19 @@ function onSeries(){
   document.getElementById('c_nco').style.display=s==='NCO'?'block':'none';
   document.getElementById('c_ncrb').style.display=(s==='NCR'||s==='NCB')?'block':'none';
   document.getElementById('c_nca').style.display=s==='NCA'?'block':'none';
-  document.querySelectorAll('input[name="ncc"]').forEach(r=>r.checked=false);
+  RADIO_NAMES.forEach(name => document.querySelectorAll(`input[name="${name}"]`).forEach(r=>r.checked=false));
   document.getElementById('nc_cs').classList.remove('show');
+  document.getElementById('nc_cb').classList.remove('show');
+  document.getElementById('inm_cs').classList.remove('show');
+  document.getElementById('inm_tr').classList.remove('show');
+  document.getElementById('inm_lf').classList.remove('show');
+  document.getElementById('inm_cb').classList.remove('show');
   document.getElementById('nc_sen_d').style.display='none';
   document.getElementById('nc_sen_f').style.display='none';
   document.getElementById('nc_sen_r').style.display='none';
+  document.getElementById('nc_proj').style.display='none';
+  document.getElementById('inmbk20').style.display='none';
+  document.getElementById('inmbk26').style.display='none';
   // メインモーター固定値切替
   const isFixed=s==='NCA'||s==='NCB';
   document.getElementById('nc_mk_sel').style.display=isFixed?'none':'block';
@@ -669,12 +680,12 @@ function getData(){
 
 function rr(k,v){
   if(!v||v==='—') return '';
-  return`<div class="rr"><div class="rk">${k}</div><div class="rv">${v}</div></div>`;
+  return`<div class="rr"><div class="rk">${esc(k)}</div><div class="rv">${esc(v)}</div></div>`;
 }
 function rs(title,rows){
   const content=rows.map(r=>rr(r[0],r[1])).join('');
   if(!content) return '';
-  return`<div class="rs"><h3>${title}</h3>${content}</div>`;
+  return`<div class="rs"><h3>${esc(title)}</h3>${content}</div>`;
 }
 
 function buildReview(){
@@ -719,7 +730,7 @@ function buildReview(){
       ['キャプタイヤコード',d.cabtyre],['コード長さ',d.cabLen]
     ]);
   }
-  if(d.remarks!=='—') h+=`<div class="rs"><h3>備考（給水・付帯設備）</h3><div class="rr"><div class="rv">${d.remarks}</div></div></div>`;
+  if(d.remarks!=='—') h+=`<div class="rs"><h3>備考（給水・付帯設備）</h3><div class="rr"><div class="rv">${esc(d.remarks)}</div></div></div>`;
   document.getElementById('rb').innerHTML=h;
 }
 
@@ -737,17 +748,17 @@ function genPDF(){
     <div style="background:#1a1a2e;color:#fff;padding:10px 16px;margin-bottom:0;">
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;">NITTOKU KIKAI KOGYO Co., Ltd.</div>
       <div style="font-size:14px;font-weight:700;margin-top:3px;letter-spacing:1px;">ELECTRICAL SPECIFICATION</div>
-      <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;">Cutting Machine / Electrical Work Specification Sheet &nbsp;|&nbsp; 発行日: ${d.date}</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;">Cutting Machine / Electrical Work Specification Sheet &nbsp;|&nbsp; 発行日: ${esc(d.date)}</div>
     </div>
     <div style="background:#c0392b;height:3px;margin-bottom:10px;"></div>
     <div style="background:#f8f7f4;border:1px solid #d8d5cc;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <div style="font-size:16px;font-weight:700;color:#1a1a2e;">${d.fullModel}</div>
-        <div style="font-size:10px;color:#777;margin-top:3px;">顧客: ${d.customer} &nbsp;|&nbsp; 現場: ${d.site}</div>
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;">${esc(d.fullModel)}</div>
+        <div style="font-size:10px;color:#777;margin-top:3px;">顧客: ${esc(d.customer)} &nbsp;|&nbsp; 現場: ${esc(d.site)}</div>
       </div>
       <div style="text-align:right;font-size:10px;color:#777;">
-        <div style="color:#c0392b;font-weight:600;">納品: ${d.shipdate}</div>
-        <div style="margin-top:2px;">担当: ${d.staff}</div>
+        <div style="color:#c0392b;font-weight:600;">納品: ${esc(d.shipdate)}</div>
+        <div style="margin-top:2px;">担当: ${esc(d.staff)}</div>
       </div>
     </div>
     <div id="_pdf_body"></div>
@@ -849,9 +860,10 @@ function restoreLS(){
   // 前回データあり → ダイアログ表示
   const name = (state['fcu']||'').trim();
   const model = (state.series||'') + (state['fmn']||'');
-  const stepLabel = labels()[state.ci||0] || '';
+  const savedLabels = state.series==='INM' ? INM_L : NC_L;
+  const stepLabel = savedLabels[state.ci||0] || '';
   const desc = (model||name)
-    ? `前回の入力（${[model,name].filter(Boolean).join(' / ')}）が保存されています。`
+    ? `前回の入力（${esc([model,name].filter(Boolean).join(' / '))}）が保存されています。`
     : '前回の入力データが保存されています。';
 
   const overlay = document.createElement('div');
@@ -860,7 +872,7 @@ function restoreLS(){
   overlay.innerHTML = `
     <div class="ri">📋</div>
     <h3>前回の作業を再開しますか？</h3>
-    <p>${desc}<br>再開すると Step「${stepLabel}」から続きを入力できます。</p>
+    <p>${desc}<br>再開すると Step「${esc(stepLabel)}」から続きを入力できます。</p>
     <div class="rbtn">
       <button class="ro-resume" onclick="doResume()">前回の続きから再開</button>
       <button class="ro-discard" onclick="doDiscard()">破棄して新規作成</button>
